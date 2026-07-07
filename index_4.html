@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kun Tartibim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1130;
+    --bg-2:#151837;
+    --surface:#1B1E42;
+    --surface-2:#242861;
+    --border:#31356e;
+    --text:#F4F3FF;
+    --text-muted:#9A9CC7;
+    --accent:#FF9E5E;
+    --accent-dim:#8a5a3a;
+    --accent-2:#5FD9D0;
+    --danger:#FF6B6B;
+    --success:#6BE38B;
+    --radius:16px;
+    --font-display:'Sora',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  .app{
+    font-family:var(--font-body);
+    background:
+      radial-gradient(1200px 600px at 90% -10%, rgba(255,158,94,0.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(95,217,208,0.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    width:100%;
+  }
+  ::selection{ background:var(--accent); color:#20122a;}
+
+  /* Sidebar */
+  .sidebar{
+    width:220px; flex-shrink:0;
+    background:var(--bg-2);
+    border-right:1px solid var(--border);
+    padding:28px 16px;
+    display:flex; flex-direction:column; gap:28px;
+  }
+  .logo{
+    font-family:var(--font-display); font-weight:800; font-size:19px;
+    display:flex; align-items:center; gap:10px; padding:0 8px;
+  }
+  .logo-dot{ width:10px;height:10px;border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent);}
+  .nav{ display:flex; flex-direction:column; gap:4px;}
+  .nav-btn{
+    all:unset; cursor:pointer;
+    display:flex; align-items:center; gap:12px;
+    padding:11px 12px; border-radius:10px;
+    color:var(--text-muted); font-size:14px; font-weight:500;
+    transition:background .15s, color .15s;
+  }
+  .nav-btn:hover{ background:var(--surface); color:var(--text);}
+  .nav-btn.active{ background:var(--surface-2); color:var(--text); }
+  .nav-btn .ic{ font-size:16px; width:18px; text-align:center;}
+  .sidebar-foot{ margin-top:auto; font-size:11px; color:var(--text-muted); padding:0 8px; line-height:1.5;}
+
+  /* Main */
+  main{ flex:1; min-width:0; display:flex; flex-direction:column;}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:26px 36px 10px 36px;
+  }
+  .topbar .greet{ font-family:var(--font-display); font-weight:700; font-size:24px;}
+  .topbar .date{ color:var(--text-muted); font-size:13px; margin-top:4px;}
+  .clock-mini{
+    font-family:var(--font-mono); font-size:26px; font-weight:500;
+    background:var(--surface); border:1px solid var(--border);
+    padding:10px 18px; border-radius:12px; letter-spacing:1px;
+  }
+
+  .tab{ display:none; padding:20px 36px 40px 36px; flex:1;}
+  .tab.active{ display:block; }
+
+  /* Dashboard grid */
+  .dash-grid{ display:grid; grid-template-columns:340px 1fr; gap:22px; align-items:start;}
+  @media (max-width: 900px){ .dash-grid{ grid-template-columns:1fr; } }
+
+  .card{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:22px;
+  }
+  .card h3{ margin:0 0 14px 0; font-family:var(--font-display); font-size:15px; font-weight:700;}
+  .card h3 .sub{ color:var(--text-muted); font-weight:500; font-size:12px; display:block; margin-top:2px;}
+
+  /* Ring */
+  .ring-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px;}
+  .ring-legend{ display:flex; gap:16px; font-size:11px; color:var(--text-muted); flex-wrap:wrap; justify-content:center;}
+  .ring-legend span{ display:flex; align-items:center; gap:6px;}
+  .ring-legend i{ width:8px;height:8px;border-radius:50%; display:inline-block;}
+
+  /* Forms */
+  .field{ margin-bottom:12px;}
+  .field label{ font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;}
+  .field input, .field select{
+    width:100%; background:var(--bg-2); border:1px solid var(--border);
+    color:var(--text); padding:10px 12px; border-radius:9px; font-size:14px;
+    font-family:var(--font-body);
+  }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--accent-2);}
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .btn{
+    all:unset; cursor:pointer; text-align:center;
+    padding:11px 16px; border-radius:10px; font-weight:600; font-size:13.5px;
+    transition:transform .1s, opacity .15s;
+  }
+  .btn:active{ transform:scale(0.97);}
+  .btn-primary{ background:var(--accent); color:#251206;}
+  .btn-primary:hover{ opacity:.92;}
+  .btn-ghost{ background:var(--surface-2); color:var(--text);}
+  .btn-ghost:hover{ background:#2c3070;}
+  .btn-danger{ background:rgba(255,107,107,0.15); color:var(--danger);}
+  .btn-block{ width:100%; margin-top:4px;}
+
+  .color-picks{ display:flex; gap:8px; margin-bottom:14px;}
+  .color-dot{ width:26px;height:26px;border-radius:50%; cursor:pointer; border:2px solid transparent;}
+  .color-dot.selected{ border-color:var(--text);}
+
+  /* Task list */
+  .task-list{ display:flex; flex-direction:column; gap:8px; max-height:520px; overflow:auto; padding-right:4px;}
+  .task-item{
+    display:flex; align-items:center; gap:12px;
+    background:var(--bg-2); border:1px solid var(--border); border-radius:11px;
+    padding:12px 14px;
+  }
+  .task-item.done{ opacity:.45;}
+  .task-item .chk{
+    width:20px;height:20px;border-radius:50%; border:2px solid var(--border);
+    cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px;
+  }
+  .task-item.done .chk{ background:var(--success); border-color:var(--success); color:#0b2b16;}
+  .task-item .time{ font-family:var(--font-mono); font-size:13px; color:var(--accent-2); width:50px; flex-shrink:0;}
+  .task-item .title{ flex:1; font-size:14px;}
+  .task-item.done .title{ text-decoration:line-through;}
+  .task-item .badge{ font-size:10px; padding:3px 8px; border-radius:20px; background:var(--surface-2); color:var(--text-muted); flex-shrink:0;}
+  .task-item .del{ all:unset; cursor:pointer; color:var(--text-muted); font-size:15px; padding:2px 6px;}
+  .task-item .del:hover{ color:var(--danger);}
+  .empty{ color:var(--text-muted); font-size:13px; text-align:center; padding:30px 10px;}
+
+  .list-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .filter-pills{ display:flex; gap:6px;}
+  .pill{ all:unset; cursor:pointer; font-size:11.5px; padding:6px 12px; border-radius:20px; background:var(--bg-2); color:var(--text-muted); border:1px solid var(--border);}
+  .pill.active{ background:var(--accent); color:#251206; border-color:var(--accent);}
+
+  /* Alarm tab */
+  .big-clock{
+    font-family:var(--font-mono); font-weight:700; font-size:64px; text-align:center;
+    letter-spacing:2px; padding:30px 0 6px 0;
+  }
+  .big-date{ text-align:center; color:var(--text-muted); font-size:14px; margin-bottom:24px;}
+  .alarm-grid{ display:grid; grid-template-columns:360px 1fr; gap:22px;}
+  @media (max-width: 900px){ .alarm-grid{ grid-template-columns:1fr;} }
+  .alarm-item{
+    display:flex; align-items:center; gap:14px;
+    background:var(--bg-2); border:1px solid var(--border); border-radius:12px;
+    padding:14px 16px; margin-bottom:10px;
+  }
+  .alarm-item .atime{ font-family:var(--font-mono); font-size:24px; font-weight:600; flex:1;}
+  .alarm-item.off .atime{ color:var(--text-muted);}
+  .alarm-item .alabel{ font-size:12px; color:var(--text-muted);}
+  .switch{ position:relative; width:42px; height:24px; flex-shrink:0;}
+  .switch input{ opacity:0; width:0; height:0;}
+  .slider{ position:absolute; inset:0; background:var(--border); border-radius:24px; cursor:pointer; transition:.2s;}
+  .slider:before{ content:""; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s;}
+  .switch input:checked + .slider{ background:var(--success);}
+  .switch input:checked + .slider:before{ transform:translateX(18px);}
+
+  /* Settings */
+  .settings-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width: 900px){ .settings-grid{ grid-template-columns:1fr;} }
+  .status-dot{ width:9px;height:9px;border-radius:50%; display:inline-block; margin-right:7px; background:var(--text-muted);}
+  .status-dot.on{ background:var(--success); box-shadow:0 0 8px var(--success);}
+  .status-line{ font-size:13px; color:var(--text-muted); display:flex; align-items:center; margin-bottom:16px;}
+  .hint{ font-size:12px; color:var(--text-muted); line-height:1.6; background:var(--bg-2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-top:14px;}
+  .hint b{ color:var(--text);}
+  .event-mini{ font-size:13px; padding:8px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:10px;}
+  .event-mini:last-child{ border-bottom:none;}
+
+  /* Mail */
+  .mail-grid{ display:grid; grid-template-columns:340px 1fr; gap:20px; height:calc(100vh - 200px); min-height:480px;}
+  @media (max-width: 900px){ .mail-grid{ grid-template-columns:1fr; height:auto;} }
+  .mail-list{ overflow:auto; display:flex; flex-direction:column; gap:6px;}
+  .mail-row{
+    display:flex; flex-direction:column; gap:3px; padding:12px 14px; border-radius:11px;
+    background:var(--bg-2); border:1px solid var(--border); cursor:pointer;
+  }
+  .mail-row:hover{ border-color:var(--accent-2);}
+  .mail-row.active{ border-color:var(--accent); background:var(--surface-2);}
+  .mail-row.unread .mail-from{ font-weight:700; color:var(--text);}
+  .mail-row .mail-from{ font-size:13px; color:var(--text-muted); display:flex; justify-content:space-between;}
+  .mail-row .mail-subj{ font-size:13.5px;}
+  .mail-row .mail-snip{ font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .mail-detail{ display:flex; flex-direction:column; overflow:hidden;}
+  .mail-detail-head{ padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:14px;}
+  .mail-detail-head .subj{ font-family:var(--font-display); font-size:18px; font-weight:700; margin-bottom:6px;}
+  .mail-detail-head .from{ font-size:13px; color:var(--text-muted);}
+  .mail-body{ flex:1; overflow:auto; font-size:14px; line-height:1.7; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word; margin-bottom:16px;}
+  .mail-body-frame-wrap{ flex:1; min-height:0; margin-bottom:16px; border-radius:10px; overflow:hidden; border:1px solid var(--border);}
+  .mail-body-frame{ width:100%; height:100%; min-height:360px; border:none; display:block; background:#fff;}
+  .reply-box textarea{
+    width:100%; min-height:110px; background:var(--bg-2); border:1px solid var(--border);
+    color:var(--text); border-radius:10px; padding:12px; font-family:var(--font-body); font-size:14px; resize:vertical;
+  }
+  .mail-placeholder{ display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-muted); font-size:14px; text-align:center; padding:20px;}
+  .connect-banner{ display:flex; align-items:center; justify-content:space-between; gap:16px; background:var(--bg-2); border:1px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:16px;}
+  .connect-banner p{ margin:0; font-size:13px; color:var(--text-muted); max-width:60ch;}
+
+  /* Alert overlay */
+  #alert-overlay{
+    display:none; position:fixed; inset:0; z-index:999;
+    background:rgba(10,10,25,0.85); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+  }
+  .alert-card{
+    background:var(--surface); border:1px solid var(--accent);
+    border-radius:20px; padding:40px 44px; text-align:center;
+    box-shadow:0 0 60px rgba(255,158,94,0.25);
+    animation:pop .25s ease;
+  }
+  @keyframes pop{ from{ transform:scale(.9); opacity:0;} to{ transform:scale(1); opacity:1;} }
+  .alert-ic{ font-size:46px; margin-bottom:10px;}
+  .alert-title{ font-family:var(--font-display); font-size:22px; font-weight:700; margin-bottom:6px;}
+  .alert-sub{ color:var(--text-muted); font-size:14px; margin-bottom:26px;}
+  .alert-actions{ display:flex; gap:12px; justify-content:center;}
+
+  .toast{
+    position:fixed; bottom:24px; right:24px; background:var(--surface);
+    border:1px solid var(--border); border-left:3px solid var(--accent-2);
+    padding:12px 18px; border-radius:10px; font-size:13px; z-index:998;
+    box-shadow:0 8px 24px rgba(0,0,0,0.3); max-width:380px;
+    opacity:0; transform:translateY(10px); transition:.25s;
+  }
+  .toast.show{ opacity:1; transform:translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-dot"></span> Kun Tartibim</div>
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="dashboard"><span class="ic">🗓️</span> Kun tartibi</button>
+      <button class="nav-btn" data-tab="alarm"><span class="ic">⏰</span> Soat va budilnik</button>
+      <button class="nav-btn" data-tab="mail"><span class="ic">📧</span> Pochta</button>
+      <button class="nav-btn" data-tab="settings"><span class="ic">🔌</span> Ulanishlar</button>
+    </nav>
+    <div class="sidebar-foot">Vazifalar va budilniklar shu qurilmada, brauzeringiz xotirasida saqlanadi.</div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <div class="greet" id="greetText">Xayrli kun!</div>
+        <div class="date" id="dateText">—</div>
+      </div>
+      <div class="clock-mini" id="miniClock">00:00:00</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section class="tab active" id="tab-dashboard">
+      <div class="dash-grid">
+        <div class="card">
+          <h3>Kun aylanasi<span class="sub">24 soatlik vaqt chizig'i</span></h3>
+          <div class="ring-wrap">
+            <svg id="ringSvg" viewBox="0 0 220 220" width="220" height="220"></svg>
+            <div class="ring-legend" id="ringLegend"></div>
+          </div>
+          <hr style="border:none;border-top:1px solid var(--border); margin:20px 0;">
+          <h3 style="margin-bottom:10px;">Yangi vazifa</h3>
+          <div class="field"><label>Nomi</label><input id="taskTitle" type="text" placeholder="Masalan: Yig'ilish"></div>
+          <div class="row2">
+            <div class="field"><label>Vaqti</label><input id="taskTime" type="time"></div>
+            <div class="field"><label>Bildirishnoma</label>
+              <select id="taskNotify">
+                <option value="app">Ilovada</option>
+                <option value="telegram">+ Telegram</option>
+              </select>
+            </div>
+          </div>
+          <div class="color-picks" id="colorPicks"></div>
+          <button class="btn btn-primary btn-block" id="addTaskBtn">Vazifa qo'shish</button>
+        </div>
+
+        <div class="card">
+          <div class="list-head">
+            <h3 style="margin:0;">Bugungi vazifalar</h3>
+            <div class="filter-pills">
+              <button class="pill active" data-f="all">Hammasi</button>
+              <button class="pill" data-f="pending">Bajarilmagan</button>
+              <button class="pill" data-f="done">Bajarilgan</button>
+            </div>
+          </div>
+          <div class="task-list" id="taskList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALARM -->
+    <section class="tab" id="tab-alarm">
+      <div class="alarm-grid">
+        <div class="card">
+          <div class="big-clock" id="bigClock">00:00:00</div>
+          <div class="big-date" id="bigDate">—</div>
+          <div id="notifPermRow" class="status-line">
+            <span class="status-dot" id="notifDot"></span>
+            <span id="notifText">Bildirishnomalarga ruxsat berilmagan</span>
+          </div>
+          <button class="btn btn-ghost btn-block" id="askNotifBtn">Bildirishnomaga ruxsat berish</button>
+        </div>
+
+        <div class="card">
+          <h3>Budilniklar<span class="sub">Yangi budilnik qo'shing</span></h3>
+          <div class="row2" style="margin-bottom:6px;">
+            <div class="field"><label>Vaqt</label><input id="alarmTime" type="time"></div>
+            <div class="field"><label>Izoh</label><input id="alarmLabel" type="text" placeholder="Masalan: Sport"></div>
+          </div>
+          <button class="btn btn-primary" id="addAlarmBtn" style="margin-bottom:20px;">Budilnik qo'shish</button>
+          <div id="alarmList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIL -->
+    <section class="tab" id="tab-mail">
+      <div id="mailConnectBanner" class="connect-banner" style="display:none;">
+        <p>Eski xatlaringiz saqlangan holda ko'rinadi. Yangi xatlarni olish va javob berish uchun Gmail'ga qayta ulaning.</p>
+        <button class="btn btn-primary" id="mailConnectBtn">Gmail'ga ulash</button>
+      </div>
+      <div class="mail-grid" id="mailGrid" style="display:none;">
+        <div class="card mail-list" id="mailList"></div>
+        <div class="card mail-detail" id="mailDetail">
+          <div class="mail-placeholder">Xatni ko'rish uchun chapdan tanlang</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="tab" id="tab-settings">
+      <div class="settings-grid">
+        <div class="card">
+          <h3>Telegram bildirishnomalari<span class="sub">Vazifa va budilniklar Telegramga ham yuboriladi</span></h3>
+          <div class="status-line"><span class="status-dot" id="tgDot"></span><span id="tgStatusText">Ulanmagan</span></div>
+          <div class="field"><label>Bot Token</label><input id="tgToken" type="text" placeholder="123456:ABC-DEF..."></div>
+          <div class="field"><label>Chat ID</label><input id="tgChatId" type="text" placeholder="Masalan: 123456789"></div>
+          <div class="row2">
+            <button class="btn btn-ghost" id="tgSaveBtn">Saqlash</button>
+            <button class="btn btn-primary" id="tgTestBtn">Sinov xabar yuborish</button>
+          </div>
+          <div class="hint">
+            <b>Qanday olish mumkin:</b> Telegramda <b>@BotFather</b> ga yozib yangi bot yarating — u sizga <b>Bot Token</b> beradi. Keyin botingizga istalgan xabar yuboring va <b>@userinfobot</b> orqali o'zingizning <b>Chat ID</b>ingizni bilib oling.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Google Calendar va Gmail<span class="sub">Tadbirlar, xatlar va javob yozish</span></h3>
+          <div class="status-line"><span class="status-dot" id="gDot"></span><span id="gStatusText">Ulanmagan</span></div>
+          <div class="field"><label>Google Client ID</label><input id="gClientId" type="text" placeholder="xxxx.apps.googleusercontent.com"></div>
+          <button class="btn btn-primary btn-block" id="gConnectBtn">Google bilan ulash</button>
+          <div id="gGmail" style="margin-top:14px;"></div>
+          <div id="gEvents"></div>
+          <div class="hint">
+            <b>Qanday sozlash mumkin:</b> <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent-2)">Google Cloud Console</a>da OAuth Client ID yarating (turi — Web application), va ushbu sahifaning manzilini (URL) "Authorized JavaScript origins" ro'yxatiga qo'shing. Bu ilova sizning kalitingizni hech qayerga yubormaydi — faqat brauzeringizda ishlatadi.
+            <br><br>
+            <b>Zaxira nusxa:</b> Google'ga ulanganingizda, vazifalaringiz va sozlamalaringiz avtomatik ravishda sizning shaxsiy Google hisobingizning yashirin bo'limida (faqat shu ilova ko'ra oladigan joyda) saqlanadi. Brauzeringizni tozalasangiz yoki boshqa qurilmada ochsangiz ham, Google bilan qayta ulanishingiz bilan hammasi avtomatik tiklanadi.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="alert-overlay">
+  <div class="alert-card">
+    <div class="alert-ic" id="alertIcon">⏰</div>
+    <div class="alert-title" id="alertTitle">Vaqti keldi!</div>
+    <div class="alert-sub" id="alertSub"></div>
+    <div class="alert-actions">
+      <button class="btn btn-ghost" id="snoozeBtn">5 daqiqaga kechiktirish</button>
+      <button class="btn btn-primary" id="stopAlertBtn">To'xtatish</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const COLORS = ['#FF9E5E','#5FD9D0','#8B7CF6','#FF6B9E','#6BE38B','#FFD166'];
+  const CATS = ['Ish','Shaxsiy','Uchrashuv','Sog\'liq','O\'qish','Boshqa'];
+
+  let state = { tasks: [], alarms: [], telegram:{token:'',chatId:''}, google:{clientId:'', connected:false, token:null} };
+  let selectedColor = COLORS[0];
+  let taskFilter = 'all';
+  let triggeredToday = new Set();
+  let audioCtx = null, alertOscillators = [];
+  let activeAlertStop = null;
+
+  // ---------- storage (real browser localStorage — works forever on the deployed site) ----------
+  function lsGet(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+  function lsSet(key, value){ try{ localStorage.setItem(key, value); return true; }catch(e){ showToast('Saqlashda xatolik: brauzer xotirasi to\'lgan yoki bloklangan'); return false; } }
+
+  async function loadState(){
+    try{ const t = lsGet('kt-tasks'); if(t) state.tasks = JSON.parse(t); }catch(e){}
+    try{ const a = lsGet('kt-alarms'); if(a) state.alarms = JSON.parse(a); }catch(e){}
+    try{ const tg = lsGet('kt-telegram'); if(tg) state.telegram = JSON.parse(tg); }catch(e){}
+    try{ const g = lsGet('kt-google'); if(g) state.google = JSON.parse(g); }catch(e){}
+    try{ const arch = lsGet('kt-mail-archive'); if(arch) mailArchive = JSON.parse(arch); }catch(e){}
+  }
+  async function saveTasks(){ lsSet('kt-tasks', JSON.stringify(state.tasks)); if(state.google.connected) driveSaveBackup(); }
+  async function saveAlarms(){ lsSet('kt-alarms', JSON.stringify(state.alarms)); if(state.google.connected) driveSaveBackup(); }
+  async function saveTelegram(){ lsSet('kt-telegram', JSON.stringify(state.telegram)); if(state.google.connected) driveSaveBackup(); }
+  async function saveGoogle(){ lsSet('kt-google', JSON.stringify({clientId:state.google.clientId, everConnected: !!state.google.everConnected})); }
+
+  // ---------- permanent local mail archive ----------
+  let mailArchive = [];
+  const MAIL_ARCHIVE_LIMIT = 1000;
+  function saveMailArchive(){
+    try{
+      const trimmed = mailArchive.slice(0, MAIL_ARCHIVE_LIMIT);
+      lsSet('kt-mail-archive', JSON.stringify(trimmed));
+    }catch(e){}
+  }
+  function mergeIntoArchive(freshMessages){
+    const byId = new Map(mailArchive.map(m=>[m.id, m]));
+    freshMessages.forEach(m=> byId.set(m.id, m));
+    mailArchive = Array.from(byId.values()).sort((a,b)=> (b.internalDate||0) - (a.internalDate||0));
+    saveMailArchive();
+  }
+
+  // ---------- toast ----------
+  let toastTimer = null;
+  function showToast(msg){
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> el.classList.remove('show'), 5000);
+  }
+
+  // ---------- clock ----------
+  const weekdays = ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+  const months = ['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'];
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+  function updateClock(){
+    const now = new Date();
+    const hh = pad(now.getHours()), mm = pad(now.getMinutes()), ss = pad(now.getSeconds());
+    const timeStr = `${hh}:${mm}:${ss}`;
+    document.getElementById('miniClock').textContent = timeStr;
+    document.getElementById('bigClock').textContent = timeStr;
+    const dateStr = `${weekdays[now.getDay()]}, ${now.getDate()}-${months[now.getMonth()]}`;
+    document.getElementById('dateText').textContent = dateStr;
+    document.getElementById('bigDate').textContent = dateStr;
+    const h = now.getHours();
+    const greet = document.getElementById('greetText');
+    greet.textContent = h<6 ? 'Xayrli tun!' : h<11 ? 'Xayrli tong!' : h<17 ? 'Xayrli kun!' : h<22 ? 'Xayrli kech!' : 'Xayrli tun!';
+    drawRing(now);
+    checkTriggers(now, hh+':'+mm);
+    if(hh==='00' && mm==='00' && ss==='00') triggeredToday.clear();
+  }
+  setInterval(updateClock, 1000);
+
+  // ---------- ring ----------
+  function drawRing(now){
+    const svg = document.getElementById('ringSvg');
+    const cx=110, cy=110, r=90;
+    let ticks = '';
+    for(let h=0; h<24; h+=2){
+      const ang = (h/24)*2*Math.PI - Math.PI/2;
+      const x1 = cx + Math.cos(ang)*82, y1 = cy + Math.sin(ang)*82;
+      const x2 = cx + Math.cos(ang)*90, y2 = cy + Math.sin(ang)*90;
+      ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#31356e" stroke-width="2"/>`;
+    }
+    const nowFrac = (now.getHours() + now.getMinutes()/60)/24;
+    const nowAng = nowFrac*2*Math.PI - Math.PI/2;
+    const handX = cx + Math.cos(nowAng)*74, handY = cy + Math.sin(nowAng)*74;
+    let dots = '';
+    state.tasks.forEach(t=>{
+      const [h,m] = t.time.split(':').map(Number);
+      const frac = (h + m/60)/24;
+      const ang = frac*2*Math.PI - Math.PI/2;
+      const x = cx + Math.cos(ang)*90, y = cy + Math.sin(ang)*90;
+      dots += `<circle cx="${x}" cy="${y}" r="5" fill="${t.color}" opacity="${t.done?0.35:1}"/>`;
+    });
+    svg.innerHTML = `
+      <circle cx="${cx}" cy="${cy}" r="90" fill="none" stroke="#242861" stroke-width="14"/>
+      ${ticks}
+      <line x1="${cx}" y1="${cy}" x2="${handX}" y2="${handY}" stroke="#FF9E5E" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="4" fill="#FF9E5E"/>
+      ${dots}
+      <text x="${cx}" y="${cy+40}" text-anchor="middle" fill="#9A9CC7" font-size="11" font-family="Inter">${state.tasks.length} ta vazifa</text>
+    `;
+    const legend = document.getElementById('ringLegend');
+    legend.innerHTML = state.tasks.slice(0,6).map(t=>`<span><i style="background:${t.color}"></i>${t.time} ${t.title.length>12?t.title.slice(0,12)+'…':t.title}</span>`).join('') || '<span style="color:var(--text-muted)">Hali vazifalar yo\'q</span>';
+  }
+
+  // ---------- color picks ----------
+  function renderColorPicks(){
+    const el = document.getElementById('colorPicks');
+    el.innerHTML = COLORS.map(c=>`<div class="color-dot ${c===selectedColor?'selected':''}" style="background:${c}" data-c="${c}"></div>`).join('');
+    el.querySelectorAll('.color-dot').forEach(d=>d.addEventListener('click', ()=>{ selectedColor=d.dataset.c; renderColorPicks(); }));
+  }
+
+  // ---------- tasks ----------
+  function renderTasks(){
+    const list = document.getElementById('taskList');
+    let items = state.tasks.slice().sort((a,b)=> a.time.localeCompare(b.time));
+    if(taskFilter==='pending') items = items.filter(t=>!t.done);
+    if(taskFilter==='done') items = items.filter(t=>t.done);
+    if(items.length===0){ list.innerHTML = '<div class="empty">Bu yerda hali hech narsa yo\'q. Chapdan yangi vazifa qo\'shing.</div>'; return; }
+    list.innerHTML = items.map(t=>`
+      <div class="task-item ${t.done?'done':''}" data-id="${t.id}">
+        <div class="chk" data-act="toggle">${t.done?'✓':''}</div>
+        <div class="time">${t.time}</div>
+        <div class="title">${escapeHtml(t.title)}</div>
+        ${t.notify==='telegram' ? '<div class="badge">Telegram</div>' : ''}
+        <button class="del" data-act="del">✕</button>
+      </div>
+    `).join('');
+    list.querySelectorAll('.task-item').forEach(row=>{
+      const id = row.dataset.id;
+      row.querySelector('[data-act="toggle"]').addEventListener('click', ()=>{
+        const t = state.tasks.find(x=>x.id===id); t.done = !t.done; saveTasks(); renderTasks(); drawRing(new Date());
+      });
+      row.querySelector('[data-act="del"]').addEventListener('click', ()=>{
+        state.tasks = state.tasks.filter(x=>x.id!==id); saveTasks(); renderTasks(); drawRing(new Date());
+      });
+    });
+  }
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  document.getElementById('addTaskBtn').addEventListener('click', ()=>{
+    const title = document.getElementById('taskTitle').value.trim();
+    const time = document.getElementById('taskTime').value;
+    const notify = document.getElementById('taskNotify').value;
+    if(!title || !time){ showToast('Nomi va vaqtini kiriting'); return; }
+    state.tasks.push({ id: 't'+Date.now(), title, time, color: selectedColor, notify, done:false });
+    saveTasks(); renderTasks(); drawRing(new Date());
+    document.getElementById('taskTitle').value=''; document.getElementById('taskTime').value='';
+    showToast('Vazifa qo\'shildi');
+  });
+
+  document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click', ()=>{
+    document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active'); taskFilter = p.dataset.f; renderTasks();
+  }));
+
+  // ---------- alarms ----------
+  function renderAlarms(){
+    const el = document.getElementById('alarmList');
+    if(state.alarms.length===0){ el.innerHTML = '<div class="empty">Budilnik qo\'shilmagan</div>'; return; }
+    el.innerHTML = state.alarms.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(a=>`
+      <div class="alarm-item ${a.on?'':'off'}" data-id="${a.id}">
+        <div>
+          <div class="atime">${a.time}</div>
+          <div class="alabel">${escapeHtml(a.label||'Budilnik')}</div>
+        </div>
+        <label class="switch"><input type="checkbox" ${a.on?'checked':''} data-act="switch"><span class="slider"></span></label>
+        <button class="del" data-act="del">✕</button>
+      </div>
+    `).join('');
+    el.querySelectorAll('.alarm-item').forEach(row=>{
+      const id = row.dataset.id;
+      row.querySelector('[data-act="switch"]').addEventListener('change', (e)=>{
+        const a = state.alarms.find(x=>x.id===id); a.on = e.target.checked; saveAlarms(); renderAlarms();
+      });
+      row.querySelector('[data-act="del"]').addEventListener('click', ()=>{
+        state.alarms = state.alarms.filter(x=>x.id!==id); saveAlarms(); renderAlarms();
+      });
+    });
+  }
+  document.getElementById('addAlarmBtn').addEventListener('click', ()=>{
+    const time = document.getElementById('alarmTime').value;
+    const label = document.getElementById('alarmLabel').value.trim();
+    if(!time){ showToast('Vaqtni tanlang'); return; }
+    state.alarms.push({ id:'a'+Date.now(), time, label, on:true });
+    saveAlarms(); renderAlarms();
+    document.getElementById('alarmTime').value=''; document.getElementById('alarmLabel').value='';
+    showToast('Budilnik qo\'shildi');
+  });
+
+  // ---------- notifications & sound ----------
+  function updateNotifDot(){
+    const dot = document.getElementById('notifDot'), txt = document.getElementById('notifText');
+    if(Notification && Notification.permission==='granted'){ dot.classList.add('on'); txt.textContent='Bildirishnomalarga ruxsat berilgan'; }
+    else{ dot.classList.remove('on'); txt.textContent='Bildirishnomalarga ruxsat berilmagan'; }
+  }
+  document.getElementById('askNotifBtn').addEventListener('click', ()=>{
+    if(!('Notification' in window)){ showToast('Brauzer bildirishnomani qo\'llamaydi'); return; }
+    Notification.requestPermission().then(updateNotifDot);
+  });
+  function browserNotify(title, body){
+    if('Notification' in window && Notification.permission==='granted'){
+      try{ new Notification(title, {body}); }catch(e){}
+    }
+  }
+  function playAlertSound(){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      let count = 0;
+      function beep(){
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.value = count%2===0 ? 880 : 660;
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime+0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.4);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime+0.4);
+        alertOscillators.push(osc);
+      }
+      beep();
+      const iv = setInterval(()=>{ count++; beep(); }, 550);
+      activeAlertStop = ()=> clearInterval(iv);
+    }catch(e){}
+  }
+  function stopAlertSound(){ if(activeAlertStop) activeAlertStop(); activeAlertStop=null; }
+
+  async function sendTelegram(text){
+    const {token, chatId} = state.telegram;
+    if(!token || !chatId) return {ok:false, reason:'not-configured'};
+    try{
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ chat_id: chatId, text })
+      });
+      const data = await res.json();
+      return { ok: !!data.ok, data };
+    }catch(e){ return { ok:false, reason:'network' }; }
+  }
+
+  function showAlert(icon, title, sub, telegramText){
+    document.getElementById('alertIcon').textContent = icon;
+    document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertSub').textContent = sub;
+    document.getElementById('alert-overlay').style.display = 'flex';
+    playAlertSound();
+    browserNotify(title, sub);
+    if(telegramText) sendTelegram(telegramText);
+  }
+  document.getElementById('stopAlertBtn').addEventListener('click', ()=>{
+    stopAlertSound(); document.getElementById('alert-overlay').style.display='none';
+  });
+  document.getElementById('snoozeBtn').addEventListener('click', ()=>{
+    stopAlertSound(); document.getElementById('alert-overlay').style.display='none';
+    const d = new Date(Date.now()+5*60000);
+    state.alarms.push({ id:'a'+Date.now(), time: pad(d.getHours())+':'+pad(d.getMinutes()), label:'Kechiktirilgan', on:true });
+    saveAlarms(); renderAlarms(); showToast('5 daqiqaga kechiktirildi');
+  });
+
+  function subtractMinutes(hhmm, mins){
+    const [h,m] = hhmm.split(':').map(Number);
+    let total = ((h*60+m-mins) % 1440 + 1440) % 1440;
+    return pad(Math.floor(total/60))+':'+pad(total%60);
+  }
+  function playSingleBeep(){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type='sine'; osc.frequency.value=740;
+      gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.2, audioCtx.currentTime+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.35);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime+0.35);
+    }catch(e){}
+  }
+  function showPreReminder(icon, title, sub, telegramText){
+    showToast(icon+' '+sub);
+    browserNotify(title, sub);
+    playSingleBeep();
+    if(telegramText) sendTelegram(telegramText);
+  }
+  const REMINDER_OFFSETS = [10, 5, 0];
+  function checkTriggers(now, hhmm){
+    state.alarms.forEach(a=>{
+      if(!a.on) return;
+      REMINDER_OFFSETS.forEach(off=>{
+        const triggerAt = subtractMinutes(a.time, off);
+        const key = 'alarm-'+off+'-'+a.id;
+        if(triggerAt===hhmm && !triggeredToday.has(key)){
+          triggeredToday.add(key);
+          const label = a.label || 'Budilnik';
+          if(off===0){
+            showAlert('⏰','Budilnik!', label, `⏰ Budilnik: ${label} (${a.time})`);
+          } else {
+            showPreReminder('⏰', `${off} daqiqa qoldi`, `${label} — ${off} daqiqadan so'ng (${a.time})`, `⏰ ${off} daqiqadan so'ng: ${label} (${a.time})`);
+          }
+        }
+      });
+    });
+    state.tasks.forEach(t=>{
+      if(t.done) return;
+      REMINDER_OFFSETS.forEach(off=>{
+        const triggerAt = subtractMinutes(t.time, off);
+        const key = 'task-'+off+'-'+t.id;
+        if(triggerAt===hhmm && !triggeredToday.has(key)){
+          triggeredToday.add(key);
+          const wantsTelegram = t.notify==='telegram';
+          if(off===0){
+            showAlert('📌','Vazifa vaqti!', t.title, wantsTelegram ? `📌 Vazifa: ${t.title} (${t.time})` : null);
+          } else {
+            showPreReminder('📌', `${off} daqiqa qoldi`, `${t.title} — ${off} daqiqadan so'ng (${t.time})`, wantsTelegram ? `📌 ${off} daqiqadan so'ng: ${t.title} (${t.time})` : null);
+          }
+        }
+      });
+    });
+  }
+
+  // ---------- telegram settings ----------
+  function renderTgStatus(){
+    const dot = document.getElementById('tgDot'), txt = document.getElementById('tgStatusText');
+    const on = !!(state.telegram.token && state.telegram.chatId);
+    dot.classList.toggle('on', on);
+    txt.textContent = on ? 'Ulangan' : 'Ulanmagan';
+    document.getElementById('tgToken').value = state.telegram.token || '';
+    document.getElementById('tgChatId').value = state.telegram.chatId || '';
+  }
+  document.getElementById('tgSaveBtn').addEventListener('click', async ()=>{
+    state.telegram.token = document.getElementById('tgToken').value.trim();
+    state.telegram.chatId = document.getElementById('tgChatId').value.trim();
+    await saveTelegram(); renderTgStatus(); showToast('Telegram sozlamalari saqlandi');
+  });
+  document.getElementById('tgTestBtn').addEventListener('click', async ()=>{
+    state.telegram.token = document.getElementById('tgToken').value.trim();
+    state.telegram.chatId = document.getElementById('tgChatId').value.trim();
+    if(!state.telegram.token || !state.telegram.chatId){ showToast('Avval token va chat ID kiriting'); return; }
+    showToast('Yuborilmoqda...');
+    const r = await sendTelegram('✅ Kun Tartibim ilovasi muvaffaqiyatli ulandi!');
+    if(r.ok){ await saveTelegram(); renderTgStatus(); showToast('Sinov xabari yuborildi!'); }
+    else{
+      const detail = r.data && r.data.description ? r.data.description : (r.reason==='network' ? 'tarmoq xatosi (CORS yoki internet)' : 'noma\'lum xatolik');
+      showToast('Xatolik: '+detail);
+    }
+  });
+
+  // ---------- google ----------
+  function renderGStatus(){
+    document.getElementById('gClientId').value = state.google.clientId || '';
+    const dot = document.getElementById('gDot'), txt = document.getElementById('gStatusText');
+    dot.classList.toggle('on', !!state.google.connected);
+    txt.textContent = state.google.connected ? 'Ulangan' : 'Ulanmagan';
+  }
+  function loadGis(cb){
+    if(window.google && window.google.accounts){ cb(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.onload = cb;
+    s.onerror = ()=> showToast('Google skriptini yuklab bo\'lmadi');
+    document.head.appendChild(s);
+  }
+  function connectGoogle(silent){
+    const clientId = (state.google.clientId || document.getElementById('gClientId').value.trim());
+    if(!clientId){
+      if(silent) return;
+      showToast('Avval Google Client ID kiriting (Ulanishlar bo\'limida)');
+      document.querySelector('[data-tab="settings"]').click();
+      return;
+    }
+    state.google.clientId = clientId; saveGoogle();
+    loadGis(()=>{
+      try{
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/drive.appdata',
+          callback: async (resp)=>{
+            if(resp.error){
+              if(!silent) showToast('Ulanishda xatolik: '+resp.error);
+              updateMailUi();
+              return;
+            }
+            state.google.token = resp.access_token; state.google.connected = true;
+            state.google.everConnected = true; saveGoogle();
+            renderGStatus(); updateMailUi();
+            if(!silent) showToast('Google Calendar va Gmail ulandi!');
+            fetchGoogleEvents();
+            fetchGmailUnread();
+            fetchInbox();
+            syncWithDrive();
+          }
+        });
+        client.requestAccessToken(silent ? { prompt: '' } : {});
+      }catch(e){ if(!silent) showToast('Google ulanishida xatolik yuz berdi'); }
+    });
+  }
+  document.getElementById('gConnectBtn').addEventListener('click', ()=> connectGoogle(false));
+  document.getElementById('mailConnectBtn').addEventListener('click', ()=> connectGoogle(false));
+
+  // ---------- Google Drive backup (appDataFolder — private, hidden, app-only storage in the user's own Google account) ----------
+  let driveFileId = null;
+  const DRIVE_BACKUP_NAME = 'kuntartibim-backup.json';
+
+  async function driveApi(path, options){
+    const res = await fetch('https://www.googleapis.com'+path, {
+      ...options,
+      headers: { Authorization:'Bearer '+state.google.token, ...(options && options.headers || {}) }
+    });
+    return res;
+  }
+  async function driveFindFile(){
+    if(driveFileId) return driveFileId;
+    const res = await driveApi(`/drive/v3/files?spaces=appDataFolder&fields=files(id,name)&q=name='${DRIVE_BACKUP_NAME}'`);
+    const data = await res.json();
+    if(data.files && data.files.length){ driveFileId = data.files[0].id; return driveFileId; }
+    return null;
+  }
+  async function driveCreateFile(){
+    const res = await driveApi('/drive/v3/files', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ name: DRIVE_BACKUP_NAME, parents:['appDataFolder'] })
+    });
+    const data = await res.json();
+    driveFileId = data.id;
+    return driveFileId;
+  }
+  async function driveSaveBackup(){
+    if(!state.google.token || !state.google.connected) return;
+    try{
+      let id = await driveFindFile();
+      if(!id) id = await driveCreateFile();
+      const payload = JSON.stringify({ tasks: state.tasks, alarms: state.alarms, telegram: state.telegram, savedAt: Date.now() });
+      await driveApi(`/upload/drive/v3/files/${id}?uploadType=media`, {
+        method:'PATCH',
+        headers:{ 'Content-Type':'application/json' },
+        body: payload
+      });
+    }catch(e){ /* silent — local storage still works as a fallback */ }
+  }
+  async function driveLoadBackup(){
+    try{
+      const id = await driveFindFile();
+      if(!id) return null;
+      const res = await driveApi(`/drive/v3/files/${id}?alt=media`);
+      if(!res.ok) return null;
+      return await res.json();
+    }catch(e){ return null; }
+  }
+  async function syncWithDrive(){
+    const backup = await driveLoadBackup();
+    const localIsEmpty = state.tasks.length===0 && state.alarms.length===0 && !state.telegram.token;
+    if(backup && localIsEmpty){
+      if(Array.isArray(backup.tasks)) state.tasks = backup.tasks;
+      if(Array.isArray(backup.alarms)) state.alarms = backup.alarms;
+      if(backup.telegram) state.telegram = backup.telegram;
+      await saveTasks(); await saveAlarms(); await saveTelegram();
+      renderTasks(); renderAlarms(); renderTgStatus(); drawRing(new Date());
+      showToast('Google hisobingizdan avvalgi ma\'lumotlar tiklandi!');
+    } else {
+      driveSaveBackup();
+    }
+  }
+
+  async function fetchGoogleEvents(){
+    const el = document.getElementById('gEvents');
+    if(!state.google.token){ return; }
+    try{
+      const now = new Date();
+      const start = new Date(now); start.setHours(0,0,0,0);
+      const end = new Date(now); end.setHours(23,59,59,999);
+      const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime`;
+      const res = await fetch(url, { headers:{ Authorization: 'Bearer '+state.google.token }});
+      const data = await res.json();
+      if(!data.items || data.items.length===0){ el.innerHTML = '<div class="empty" style="padding:10px 0;">Bugun uchun tadbirlar yo\'q</div>'; return; }
+      el.innerHTML = data.items.slice(0,6).map(ev=>{
+        const t = ev.start.dateTime ? new Date(ev.start.dateTime).toTimeString().slice(0,5) : 'kun bo\'yi';
+        return `<div class="event-mini"><span>${escapeHtml(ev.summary||'(nomsiz)')}</span><span style="color:var(--accent-2)">${t}</span></div>`;
+      }).join('');
+    }catch(e){ el.innerHTML = '<div class="empty">Tadbirlarni olishda xatolik</div>'; }
+  }
+  async function fetchGmailUnread(){
+    const el = document.getElementById('gGmail');
+    if(!state.google.token) return;
+    try{
+      const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?q=is:unread&maxResults=1', {
+        headers:{ Authorization: 'Bearer '+state.google.token }
+      });
+      const data = await res.json();
+      const count = data.resultSizeEstimate ?? 0;
+      el.innerHTML = `<div class="event-mini"><span>📧 O'qilmagan xatlar</span><span style="color:var(--accent)">${count}</span></div>`;
+    }catch(e){ el.innerHTML = '<div class="empty">Gmail ma\'lumotini olishda xatolik</div>'; }
+  }
+
+  // ---------- mail inbox ----------
+  let inboxMessages = [];
+  let activeMessageId = null;
+
+  function b64urlDecode(str){
+    str = str.replace(/-/g,'+').replace(/_/g,'/');
+    while(str.length % 4) str += '=';
+    const binary = atob(str);
+    const bytes = Uint8Array.from(binary, c=>c.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+  function b64urlEncode(str){
+    const bytes = new TextEncoder().encode(str);
+    let binary = ''; bytes.forEach(b=> binary += String.fromCharCode(b));
+    return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+  function getHeader(headers, name){
+    const h = headers.find(x=>x.name.toLowerCase()===name.toLowerCase());
+    return h ? h.value : '';
+  }
+  function findPartByMime(payload, mimeType){
+    if(!payload) return null;
+    if(payload.mimeType===mimeType && payload.body && payload.body.data) return payload.body.data;
+    if(payload.parts){
+      for(const p of payload.parts){
+        const found = findPartByMime(p, mimeType);
+        if(found) return found;
+      }
+    }
+    return null;
+  }
+  function htmlToText(html){
+    try{
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      doc.querySelectorAll('script,style').forEach(el=>el.remove());
+      let text = doc.body ? (doc.body.innerText || doc.body.textContent || '') : '';
+      return text.replace(/\n{3,}/g,'\n\n').trim();
+    }catch(e){ return html.replace(/<[^>]+>/g,' '); }
+  }
+  function extractPlainText(payload){
+    const plainData = findPartByMime(payload, 'text/plain');
+    if(plainData) return b64urlDecode(plainData).trim();
+    const htmlData = findPartByMime(payload, 'text/html');
+    if(htmlData) return htmlToText(b64urlDecode(htmlData));
+    if(payload && payload.body && payload.body.data) return htmlToText(b64urlDecode(payload.body.data));
+    return '';
+  }
+
+  async function gmailFetch(path){
+    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/'+path, {
+      headers:{ Authorization: 'Bearer '+state.google.token }
+    });
+    if(!res.ok) throw new Error('gmail-http-'+res.status);
+    return res.json();
+  }
+
+  function updateMailUi(){
+    const connected = !!(state.google.connected && state.google.token);
+    const hasArchive = mailArchive.length > 0;
+    document.getElementById('mailConnectBanner').style.display = connected ? 'none' : 'flex';
+    document.getElementById('mailGrid').style.display = (connected || hasArchive) ? 'grid' : 'none';
+    if(!connected && hasArchive){
+      inboxMessages = mailArchive.slice(0, 50);
+      renderInbox();
+    }
+  }
+
+  async function fetchInbox(){
+    if(!state.google.token) return;
+    updateMailUi();
+    const listEl = document.getElementById('mailList');
+    if(mailArchive.length){ inboxMessages = mailArchive.slice(0, 50); renderInbox(); }
+    else listEl.innerHTML = '<div class="empty">Xatlar yuklanmoqda...</div>';
+    try{
+      const data = await gmailFetch('messages?maxResults=25&q=in:inbox');
+      if(!data.messages || data.messages.length===0){
+        if(!mailArchive.length) listEl.innerHTML = '<div class="empty">Inbox bo\'sh</div>';
+        return;
+      }
+      const details = await Promise.all(data.messages.map(m=>
+        gmailFetch(`messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`).catch(()=>null)
+      ));
+      const fresh = details.filter(Boolean).map(d=>({
+        id: d.id, threadId: d.threadId,
+        from: getHeader(d.payload.headers,'From'),
+        subject: getHeader(d.payload.headers,'Subject') || '(mavzusiz)',
+        date: getHeader(d.payload.headers,'Date'),
+        internalDate: Number(d.internalDate) || Date.now(),
+        snippet: d.snippet || '',
+        unread: (d.labelIds||[]).includes('UNREAD')
+      }));
+      mergeIntoArchive(fresh);
+      inboxMessages = mailArchive.slice(0, 50);
+      renderInbox();
+    }catch(e){
+      if(!mailArchive.length) listEl.innerHTML = '<div class="empty">Xatlarni yuklashda xatolik. Token muddati tugagan bo\'lishi mumkin — qayta ulaning.</div>';
+    }
+  }
+
+  function renderInbox(){
+    const listEl = document.getElementById('mailList');
+    listEl.innerHTML = inboxMessages.map(m=>`
+      <div class="mail-row ${m.unread?'unread':''} ${m.id===activeMessageId?'active':''}" data-id="${m.id}">
+        <div class="mail-from"><span>${escapeHtml(m.from.replace(/<.*>/,'').trim() || m.from)}</span><span>${escapeHtml((m.date||'').slice(5,16))}</span></div>
+        <div class="mail-subj">${escapeHtml(m.subject)}</div>
+        <div class="mail-snip">${escapeHtml(m.snippet)}</div>
+      </div>
+    `).join('');
+    listEl.querySelectorAll('.mail-row').forEach(row=>{
+      row.addEventListener('click', ()=> openMessage(row.dataset.id));
+    });
+  }
+
+  async function openMessage(id){
+    activeMessageId = id;
+    renderInbox();
+    const detail = document.getElementById('mailDetail');
+    if(!state.google.token){
+      detail.innerHTML = '<div class="mail-placeholder">Xat matnini o\'qish va javob berish uchun avval Gmail\'ga qayta ulaning.<br><br><button class="btn btn-primary" id="reconnectFromDetail">Gmail\'ga ulash</button></div>';
+      const btn = document.getElementById('reconnectFromDetail');
+      if(btn) btn.addEventListener('click', ()=> connectGoogle(false));
+      return;
+    }
+    detail.innerHTML = '<div class="mail-placeholder">Yuklanmoqda...</div>';
+    try{
+      const d = await gmailFetch(`messages/${id}?format=full`);
+      const from = getHeader(d.payload.headers,'From');
+      const subject = getHeader(d.payload.headers,'Subject') || '(mavzusiz)';
+      const messageIdHeader = getHeader(d.payload.headers,'Message-ID');
+      const htmlData = findPartByMime(d.payload, 'text/html');
+      let bodyHtml;
+      if(htmlData){
+        bodyHtml = `<div class="mail-body-frame-wrap"><iframe class="mail-body-frame" sandbox="allow-popups allow-popups-to-escape-sandbox" srcdoc="${escapeHtml(wrapEmailHtml(b64urlDecode(htmlData)))}"></iframe></div>`;
+      } else {
+        const plain = extractPlainText(d.payload) || d.snippet || '';
+        bodyHtml = `<div class="mail-body">${escapeHtml(plain)}</div>`;
+      }
+      detail.innerHTML = `
+        <div class="mail-detail-head">
+          <div class="subj">${escapeHtml(subject)}</div>
+          <div class="from">${escapeHtml(from)}</div>
+        </div>
+        ${bodyHtml}
+        <div class="reply-box">
+          <textarea id="replyText" placeholder="Javobingizni yozing..."></textarea>
+          <button class="btn btn-primary" id="sendReplyBtn" style="margin-top:10px;">Javob yuborish</button>
+        </div>
+      `;
+      document.getElementById('sendReplyBtn').addEventListener('click', ()=> sendReply(d, from, subject, messageIdHeader));
+    }catch(e){ detail.innerHTML = '<div class="mail-placeholder">Xatni ochishda xatolik yuz berdi</div>'; }
+  }
+  function wrapEmailHtml(html){
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><base target="_blank">
+    <style>
+      html,body{margin:0;padding:14px;font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff;word-wrap:break-word;overflow-wrap:break-word;}
+      img{max-width:100%;height:auto;}
+      table{max-width:100%;}
+      a{color:#1a73e8;}
+    </style></head><body>${html}</body></html>`;
+  }
+
+  async function sendReply(original, toAddress, subject, inReplyTo){
+    const text = document.getElementById('replyText').value.trim();
+    if(!text){ showToast('Javob matnini yozing'); return; }
+    const replySubject = subject.toLowerCase().startsWith('re:') ? subject : 'Re: '+subject;
+    const rawLines = [
+      `To: ${toAddress}`,
+      `Subject: ${replySubject}`,
+      inReplyTo ? `In-Reply-To: ${inReplyTo}` : '',
+      inReplyTo ? `References: ${inReplyTo}` : '',
+      'Content-Type: text/plain; charset="UTF-8"',
+      '',
+      text
+    ].filter(Boolean).join('\r\n');
+    const raw = b64urlEncode(rawLines);
+    try{
+      const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+        method:'POST',
+        headers:{ Authorization:'Bearer '+state.google.token, 'Content-Type':'application/json' },
+        body: JSON.stringify({ raw, threadId: original.threadId })
+      });
+      if(!res.ok) throw new Error('send-failed');
+      showToast('Javob yuborildi!');
+      document.getElementById('replyText').value = '';
+    }catch(e){ showToast('Javob yuborishda xatolik yuz berdi'); }
+  }
+
+  // ---------- tabs ----------
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---------- init ----------
+  (async function init(){
+    await loadState();
+    renderColorPicks();
+    renderTasks();
+    renderAlarms();
+    renderTgStatus();
+    renderGStatus();
+    updateMailUi();
+    updateNotifDot();
+    updateClock();
+    if(state.google.clientId && state.google.everConnected){
+      setTimeout(()=> connectGoogle(true), 400);
+    }
+    setInterval(()=>{ if(state.google.everConnected) connectGoogle(true); }, 50*60*1000);
+  })();
+})();
+</script>
+</body>
+</html>
