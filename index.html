@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kun Tartibim</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0F1130">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kun Tartibim">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -279,15 +284,7 @@
           <hr style="border:none;border-top:1px solid var(--border); margin:20px 0;">
           <h3 style="margin-bottom:10px;">Yangi vazifa</h3>
           <div class="field"><label>Nomi</label><input id="taskTitle" type="text" placeholder="Masalan: Yig'ilish"></div>
-          <div class="row2">
-            <div class="field"><label>Vaqti</label><input id="taskTime" type="time"></div>
-            <div class="field"><label>Bildirishnoma</label>
-              <select id="taskNotify">
-                <option value="app">Ilovada</option>
-                <option value="telegram">+ Telegram</option>
-              </select>
-            </div>
-          </div>
+          <div class="field"><label>Vaqti</label><input id="taskTime" type="time"></div>
           <div class="color-picks" id="colorPicks"></div>
           <button class="btn btn-primary btn-block" id="addTaskBtn">Vazifa qo'shish</button>
         </div>
@@ -351,27 +348,21 @@
         <div class="card">
           <h3>Telegram bildirishnomalari<span class="sub">Vazifa va budilniklar Telegramga ham yuboriladi</span></h3>
           <div class="status-line"><span class="status-dot" id="tgDot"></span><span id="tgStatusText">Ulanmagan</span></div>
-          <div class="field"><label>Bot Token</label><input id="tgToken" type="text" placeholder="123456:ABC-DEF..."></div>
-          <div class="field"><label>Chat ID</label><input id="tgChatId" type="text" placeholder="Masalan: 123456789"></div>
-          <div class="row2">
-            <button class="btn btn-ghost" id="tgSaveBtn">Saqlash</button>
-            <button class="btn btn-primary" id="tgTestBtn">Sinov xabar yuborish</button>
-          </div>
+          <button class="btn btn-primary btn-block" id="tgLinkBtn">Telegram bilan ulash</button>
+          <button class="btn btn-ghost btn-block" id="tgTestBtn" style="margin-top:10px; display:none;">Sinov xabar yuborish</button>
           <div class="hint">
-            <b>Qanday olish mumkin:</b> Telegramda <b>@BotFather</b> ga yozib yangi bot yarating — u sizga <b>Bot Token</b> beradi. Keyin botingizga istalgan xabar yuboring va <b>@userinfobot</b> orqali o'zingizning <b>Chat ID</b>ingizni bilib oling.
+            Tugmani bosganingizda Telegram ochiladi va botga avtomatik yo'naltirilasiz. Faqat <b>"Start"</b> tugmasini bosing — token yoki ID qo'lda kiritish shart emas.
           </div>
         </div>
 
         <div class="card">
           <h3>Google Calendar va Gmail<span class="sub">Tadbirlar, xatlar va javob yozish</span></h3>
           <div class="status-line"><span class="status-dot" id="gDot"></span><span id="gStatusText">Ulanmagan</span></div>
-          <div class="field"><label>Google Client ID</label><input id="gClientId" type="text" placeholder="xxxx.apps.googleusercontent.com"></div>
+          <p style="color:var(--text-muted); font-size:12.5px; margin:0 0 14px 0;">Hisobingizni ulash uchun quyidagi tugmani bosing — boshqa hech narsa kiritish shart emas.</p>
           <button class="btn btn-primary btn-block" id="gConnectBtn">Google bilan ulash</button>
           <div id="gGmail" style="margin-top:14px;"></div>
           <div id="gEvents"></div>
           <div class="hint">
-            <b>Qanday sozlash mumkin:</b> <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent-2)">Google Cloud Console</a>da OAuth Client ID yarating (turi — Web application), va ushbu sahifaning manzilini (URL) "Authorized JavaScript origins" ro'yxatiga qo'shing. Bu ilova sizning kalitingizni hech qayerga yubormaydi — faqat brauzeringizda ishlatadi.
-            <br><br>
             <b>Zaxira nusxa:</b> Google'ga ulanganingizda, vazifalaringiz va sozlamalaringiz avtomatik ravishda sizning shaxsiy Google hisobingizning yashirin bo'limida (faqat shu ilova ko'ra oladigan joyda) saqlanadi. Brauzeringizni tozalasangiz yoki boshqa qurilmada ochsangiz ham, Google bilan qayta ulanishingiz bilan hammasi avtomatik tiklanadi.
           </div>
         </div>
@@ -399,7 +390,7 @@
   const COLORS = ['#FF9E5E','#5FD9D0','#8B7CF6','#FF6B9E','#6BE38B','#FFD166'];
   const CATS = ['Ish','Shaxsiy','Uchrashuv','Sog\'liq','O\'qish','Boshqa'];
 
-  let state = { tasks: [], alarms: [], telegram:{token:'',chatId:''}, google:{clientId:'', connected:false, token:null} };
+  let state = { tasks: [], alarms: [], telegram:{linked:false}, google:{clientId:'', connected:false, token:null} };
   let selectedColor = COLORS[0];
   let taskFilter = 'all';
   let triggeredToday = new Set();
@@ -417,10 +408,22 @@
     try{ const g = lsGet('kt-google'); if(g) state.google = JSON.parse(g); }catch(e){}
     try{ const arch = lsGet('kt-mail-archive'); if(arch) mailArchive = JSON.parse(arch); }catch(e){}
   }
-  async function saveTasks(){ lsSet('kt-tasks', JSON.stringify(state.tasks)); if(state.google.connected) driveSaveBackup(); }
-  async function saveAlarms(){ lsSet('kt-alarms', JSON.stringify(state.alarms)); if(state.google.connected) driveSaveBackup(); }
+  async function saveTasks(){ lsSet('kt-tasks', JSON.stringify(state.tasks)); if(state.google.connected) driveSaveBackup(); syncStateToServer(); }
+  async function saveAlarms(){ lsSet('kt-alarms', JSON.stringify(state.alarms)); if(state.google.connected) driveSaveBackup(); syncStateToServer(); }
+  let syncDebounce = null;
+  function syncStateToServer(){
+    clearTimeout(syncDebounce);
+    syncDebounce = setTimeout(async ()=>{
+      try{
+        await fetch('/.netlify/functions/sync-state', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ deviceId: getDeviceId(), tasks: state.tasks, alarms: state.alarms })
+        });
+      }catch(e){ /* offline — will sync next time something changes or the app opens */ }
+    }, 800);
+  }
   async function saveTelegram(){ lsSet('kt-telegram', JSON.stringify(state.telegram)); if(state.google.connected) driveSaveBackup(); }
-  async function saveGoogle(){ lsSet('kt-google', JSON.stringify({clientId:state.google.clientId, everConnected: !!state.google.everConnected})); }
+  async function saveGoogle(){ lsSet('kt-google', JSON.stringify({everConnected: !!state.google.everConnected})); }
 
   // ---------- permanent local mail archive ----------
   let mailArchive = [];
@@ -523,7 +526,6 @@
         <div class="chk" data-act="toggle">${t.done?'✓':''}</div>
         <div class="time">${t.time}</div>
         <div class="title">${escapeHtml(t.title)}</div>
-        ${t.notify==='telegram' ? '<div class="badge">Telegram</div>' : ''}
         <button class="del" data-act="del">✕</button>
       </div>
     `).join('');
@@ -542,9 +544,8 @@
   document.getElementById('addTaskBtn').addEventListener('click', ()=>{
     const title = document.getElementById('taskTitle').value.trim();
     const time = document.getElementById('taskTime').value;
-    const notify = document.getElementById('taskNotify').value;
     if(!title || !time){ showToast('Nomi va vaqtini kiriting'); return; }
-    state.tasks.push({ id: 't'+Date.now(), title, time, color: selectedColor, notify, done:false });
+    state.tasks.push({ id: 't'+Date.now(), title, time, color: selectedColor, done:false });
     saveTasks(); renderTasks(); drawRing(new Date());
     document.getElementById('taskTitle').value=''; document.getElementById('taskTime').value='';
     showToast('Vazifa qo\'shildi');
@@ -626,16 +627,21 @@
   }
   function stopAlertSound(){ if(activeAlertStop) activeAlertStop(); activeAlertStop=null; }
 
+  const BOT_USERNAME = 'My_reja_bot';
+  function getDeviceId(){
+    let id = lsGet('kt-device-id');
+    if(!id){ id = 'd'+Date.now()+Math.random().toString(36).slice(2,10); lsSet('kt-device-id', id); }
+    return id;
+  }
   async function sendTelegram(text){
-    const {token, chatId} = state.telegram;
-    if(!token || !chatId) return {ok:false, reason:'not-configured'};
+    if(!state.telegram.linked) return {ok:false, reason:'not-configured'};
     try{
-      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      const res = await fetch('/.netlify/functions/telegram-send', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ chat_id: chatId, text })
+        body: JSON.stringify({ deviceId: getDeviceId(), text })
       });
       const data = await res.json();
-      return { ok: !!data.ok, data };
+      return { ok: res.ok && !!data.ok, data };
     }catch(e){ return { ok:false, reason:'network' }; }
   }
 
@@ -706,11 +712,10 @@
         const key = 'task-'+off+'-'+t.id;
         if(triggerAt===hhmm && !triggeredToday.has(key)){
           triggeredToday.add(key);
-          const wantsTelegram = t.notify==='telegram';
           if(off===0){
-            showAlert('📌','Vazifa vaqti!', t.title, wantsTelegram ? `📌 Vazifa: ${t.title} (${t.time})` : null);
+            showAlert('📌','Vazifa vaqti!', t.title, `📌 Vazifa: ${t.title} (${t.time})`);
           } else {
-            showPreReminder('📌', `${off} daqiqa qoldi`, `${t.title} — ${off} daqiqadan so'ng (${t.time})`, wantsTelegram ? `📌 ${off} daqiqadan so'ng: ${t.title} (${t.time})` : null);
+            showPreReminder('📌', `${off} daqiqa qoldi`, `${t.title} — ${off} daqiqadan so'ng (${t.time})`, `📌 ${off} daqiqadan so'ng: ${t.title} (${t.time})`);
           }
         }
       });
@@ -720,33 +725,47 @@
   // ---------- telegram settings ----------
   function renderTgStatus(){
     const dot = document.getElementById('tgDot'), txt = document.getElementById('tgStatusText');
-    const on = !!(state.telegram.token && state.telegram.chatId);
+    const on = !!state.telegram.linked;
     dot.classList.toggle('on', on);
     txt.textContent = on ? 'Ulangan' : 'Ulanmagan';
-    document.getElementById('tgToken').value = state.telegram.token || '';
-    document.getElementById('tgChatId').value = state.telegram.chatId || '';
+    document.getElementById('tgTestBtn').style.display = on ? 'block' : 'none';
+    document.getElementById('tgLinkBtn').textContent = on ? 'Qayta ulash' : 'Telegram bilan ulash';
   }
-  document.getElementById('tgSaveBtn').addEventListener('click', async ()=>{
-    state.telegram.token = document.getElementById('tgToken').value.trim();
-    state.telegram.chatId = document.getElementById('tgChatId').value.trim();
-    await saveTelegram(); renderTgStatus(); showToast('Telegram sozlamalari saqlandi');
+  let tgPollTimer = null;
+  document.getElementById('tgLinkBtn').addEventListener('click', ()=>{
+    const deviceId = getDeviceId();
+    window.open(`https://t.me/${BOT_USERNAME}?start=${deviceId}`, '_blank');
+    showToast('Telegram\'da "Start" tugmasini bosing...');
+    let attempts = 0;
+    clearInterval(tgPollTimer);
+    tgPollTimer = setInterval(async ()=>{
+      attempts++;
+      try{
+        const res = await fetch(`/.netlify/functions/telegram-link-status?deviceId=${deviceId}`);
+        const data = await res.json();
+        if(data.linked){
+          clearInterval(tgPollTimer);
+          state.telegram = { linked:true };
+          await saveTelegram(); renderTgStatus();
+          showToast('Telegram muvaffaqiyatli ulandi!');
+        }
+      }catch(e){}
+      if(attempts>40) clearInterval(tgPollTimer); // stop after ~2 minutes
+    }, 3000);
   });
   document.getElementById('tgTestBtn').addEventListener('click', async ()=>{
-    state.telegram.token = document.getElementById('tgToken').value.trim();
-    state.telegram.chatId = document.getElementById('tgChatId').value.trim();
-    if(!state.telegram.token || !state.telegram.chatId){ showToast('Avval token va chat ID kiriting'); return; }
     showToast('Yuborilmoqda...');
     const r = await sendTelegram('✅ Kun Tartibim ilovasi muvaffaqiyatli ulandi!');
-    if(r.ok){ await saveTelegram(); renderTgStatus(); showToast('Sinov xabari yuborildi!'); }
+    if(r.ok){ showToast('Sinov xabari yuborildi!'); }
     else{
-      const detail = r.data && r.data.description ? r.data.description : (r.reason==='network' ? 'tarmoq xatosi (CORS yoki internet)' : 'noma\'lum xatolik');
+      const detail = r.data && r.data.error ? r.data.error : (r.reason==='network' ? 'tarmoq xatosi' : 'noma\'lum xatolik');
       showToast('Xatolik: '+detail);
     }
   });
 
   // ---------- google ----------
+  const GOOGLE_CLIENT_ID = '17653852216-9pe5fv18inqftknt00h1gvmr396j6jht.apps.googleusercontent.com';
   function renderGStatus(){
-    document.getElementById('gClientId').value = state.google.clientId || '';
     const dot = document.getElementById('gDot'), txt = document.getElementById('gStatusText');
     dot.classList.toggle('on', !!state.google.connected);
     txt.textContent = state.google.connected ? 'Ulangan' : 'Ulanmagan';
@@ -760,18 +779,10 @@
     document.head.appendChild(s);
   }
   function connectGoogle(silent){
-    const clientId = (state.google.clientId || document.getElementById('gClientId').value.trim());
-    if(!clientId){
-      if(silent) return;
-      showToast('Avval Google Client ID kiriting (Ulanishlar bo\'limida)');
-      document.querySelector('[data-tab="settings"]').click();
-      return;
-    }
-    state.google.clientId = clientId; saveGoogle();
     loadGis(()=>{
       try{
         const client = google.accounts.oauth2.initTokenClient({
-          client_id: clientId,
+          client_id: GOOGLE_CLIENT_ID,
           scope: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/drive.appdata',
           callback: async (resp)=>{
             if(resp.error){
@@ -829,7 +840,7 @@
     try{
       let id = await driveFindFile();
       if(!id) id = await driveCreateFile();
-      const payload = JSON.stringify({ tasks: state.tasks, alarms: state.alarms, telegram: state.telegram, savedAt: Date.now() });
+      const payload = JSON.stringify({ tasks: state.tasks, alarms: state.alarms, savedAt: Date.now() });
       await driveApi(`/upload/drive/v3/files/${id}?uploadType=media`, {
         method:'PATCH',
         headers:{ 'Content-Type':'application/json' },
@@ -848,13 +859,12 @@
   }
   async function syncWithDrive(){
     const backup = await driveLoadBackup();
-    const localIsEmpty = state.tasks.length===0 && state.alarms.length===0 && !state.telegram.token;
+    const localIsEmpty = state.tasks.length===0 && state.alarms.length===0;
     if(backup && localIsEmpty){
       if(Array.isArray(backup.tasks)) state.tasks = backup.tasks;
       if(Array.isArray(backup.alarms)) state.alarms = backup.alarms;
-      if(backup.telegram) state.telegram = backup.telegram;
-      await saveTasks(); await saveAlarms(); await saveTelegram();
-      renderTasks(); renderAlarms(); renderTgStatus(); drawRing(new Date());
+      await saveTasks(); await saveAlarms();
+      renderTasks(); renderAlarms(); drawRing(new Date());
       showToast('Google hisobingizdan avvalgi ma\'lumotlar tiklandi!');
     } else {
       driveSaveBackup();
@@ -1089,6 +1099,21 @@
   });
 
   // ---------- init ----------
+  async function refreshTelegramStatus(){
+    try{
+      const res = await fetch(`/.netlify/functions/telegram-link-status?deviceId=${getDeviceId()}`);
+      const data = await res.json();
+      state.telegram.linked = !!data.linked;
+    }catch(e){ /* keep last known state if the check fails (e.g. offline) */ }
+    renderTgStatus();
+  }
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
+    });
+  }
+
   (async function init(){
     await loadState();
     renderColorPicks();
@@ -1099,7 +1124,9 @@
     updateMailUi();
     updateNotifDot();
     updateClock();
-    if(state.google.clientId && state.google.everConnected){
+    refreshTelegramStatus();
+    syncStateToServer();
+    if(state.google.everConnected){
       setTimeout(()=> connectGoogle(true), 400);
     }
     setInterval(()=>{ if(state.google.everConnected) connectGoogle(true); }, 50*60*1000);
